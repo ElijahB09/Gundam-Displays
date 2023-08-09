@@ -6,18 +6,13 @@ import (
 	"io"
 	"net/http"
 	"os"
-	//"github.com/stianeikeland/go-rpio/v4"
+
+	"github.com/stianeikeland/go-rpio/v4"
 )
 
 func led_on(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("LEDs on\n")
 	io.WriteString(w, "Gundam f91 LEDs on\n")
-	// err := rpio.Open()
-	// if err != nil {
-	// 	fmt.Println("Could not open: " + err.Error())
-	// 	os.Exit(1)
-	// }
-	// defer rpio.Close()
 	// pin := get_pin()
 	// pin.Output()
 	// pin.Low()
@@ -37,6 +32,13 @@ func led_off(w http.ResponseWriter, r *http.Request) {
 // }
 
 func main() {
+	err_rpio := rpio.Open()
+	if err_rpio != nil {
+		fmt.Println("Could not open: " + err_rpio.Error())
+		os.Exit(1)
+	}
+	defer rpio.Close()
+
 	http.HandleFunc("/f91/on", led_on)
 	http.HandleFunc("/f91/off", led_off)
 
