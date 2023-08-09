@@ -13,23 +13,23 @@ import (
 func led_on(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("LEDs on\n")
 	io.WriteString(w, "Gundam f91 LEDs on\n")
-	// pin := get_pin()
-	// pin.Output()
-	// pin.Low()
+	pin := get_pin()
+	pin.Output()
+	pin.Low()
 }
 
 func led_off(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("LEDs off\n")                   // Goes to console
 	io.WriteString(w, "Gundam f91 LEDs off\n") // Goes to webpage
-	// pin := get_pin()
-	// pin.High()
-	// rpio.Close()
+	pin := get_pin()
+	pin.High()
+	rpio.Close()
 }
 
-// func get_pin() rpio.Pin {
-// 	pin := rpio.Pin(18)
-// 	return pin
-// }
+func get_pin() rpio.Pin {
+	pin := rpio.Pin(18)
+	return pin
+}
 
 func main() {
 	err_rpio := rpio.Open()
