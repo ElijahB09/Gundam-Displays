@@ -9,19 +9,6 @@ import (
 	"github.com/stianeikeland/go-rpio/v4"
 )
 
-func main() {
-	http.HandleFunc("/f91/on", led_on)
-	http.HandleFunc("/f91/off", led_off)
-
-	err := http.ListenAndServe(":3333", nil)
-	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server closed\n")
-	} else if err != nil {
-		fmt.Printf("error starting server: %s\n", err)
-		os.Exit(1)
-	}
-}
-
 func led_on(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("LEDs on\n")
 	err := rpio.Open()
@@ -45,4 +32,17 @@ func led_off(w http.ResponseWriter, r *http.Request) {
 func get_pin() rpio.Pin {
 	pin := rpio.Pin(18)
 	return pin
+}
+
+func main() {
+	http.HandleFunc("/f91/on", led_on)
+	http.HandleFunc("/f91/off", led_off)
+
+	err := http.ListenAndServe(":3333", nil)
+	if errors.Is(err, http.ErrServerClosed) {
+		fmt.Printf("server closed\n")
+	} else if err != nil {
+		fmt.Printf("error starting server: %s\n", err)
+		os.Exit(1)
+	}
 }
