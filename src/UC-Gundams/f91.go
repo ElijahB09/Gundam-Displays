@@ -1,4 +1,4 @@
-package ucgundams
+package main
 
 import (
 	"errors"
