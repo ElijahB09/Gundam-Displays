@@ -42,7 +42,7 @@ func main() {
 	http.HandleFunc("/f91/on", led_on)
 	http.HandleFunc("/f91/off", led_off)
 
-	err := http.ListenAndServe(":3333", nil)
+	err := http.ListenAndServe("10.0.0.34:3333", nil)
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("server closed\n")
 	} else if err != nil {
