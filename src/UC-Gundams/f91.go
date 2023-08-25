@@ -33,14 +33,14 @@ func main() {
 		os.Exit(1)
 	}
 	defer rpio.Close()
-	
+
 	pin := rpio.Pin(18)
 	pin.Output()
 
 	http.HandleFunc("/f91/on", on(pin))
 	http.HandleFunc("/f91/off", off(pin))
 
-	err := http.ListenAndServe("10.0.0.34:3333", nil)
+	err := http.ListenAndServe(":3333", nil)
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("server closed\n")
 	} else if err != nil {
