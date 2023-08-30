@@ -47,16 +47,15 @@ func main() {
 	if !exists {
 		fmt.Print("Something big gone wrong with .env")
 	}
-	var port = 8083
+	var port = 1883
 
 	var gundams []Gundam
 	gundams = append(gundams, Gundam{name: "f91", topic: "gundam/uc/f91/f91gundam"})
 	gundams = append(gundams, Gundam{name: "unicorn", topic: "gundam/uc/unicorn/unicorngundam"})
 
 	for _, element := range gundams {
-		// element is the element from someSlice for where we are
 		opts := mqtt.NewClientOptions()
-		opts.AddBroker(fmt.Sprintf("mqtts://%s:%d", broker, port))
+		opts.AddBroker(fmt.Sprintf("mqtt://%s:%d", broker, port))
 		opts.SetClientID("mqtt_client_" + element.name)
 		opts.SetUsername(element.name)
 		password, isThere := os.LookupEnv("GUNDAM_" + strings.ToUpper(element.name) + "_PASSWORD")
