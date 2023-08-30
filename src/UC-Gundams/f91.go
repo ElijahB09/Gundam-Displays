@@ -26,7 +26,7 @@ func off(pin rpio.Pin) http.HandlerFunc {
 	}
 }
 
-func main() {
+func toggleF91(command string) {
 	err_rpio := rpio.Open()
 	if err_rpio != nil {
 		fmt.Println("Could not open: " + err_rpio.Error())
