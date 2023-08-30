@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	uc "github.com/ElijahB09/Gundam-Displays/uc"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/joho/godotenv"
 )
@@ -17,7 +18,7 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 	switch msg.Topic() {
 	case "gundam/uc/f91/f91gundam":
-		//toggleF91(msg.Payload())
+		uc.ToggleF91(msg.Payload())
 		break
 	case "gundam/uc/unicorn/unicorngundam":
 
