@@ -1,50 +1,53 @@
 package uc
 
 import (
-	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 
 	"github.com/stianeikeland/go-rpio/v4"
 )
 
-func on(pin rpio.Pin) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("LEDs on\n")
-		io.WriteString(w, "Gundam f91 LEDs on\n")
-		pin.High()
-	}
+var pin rpio.Pin
+var activated bool = false
+
+func on(pin rpio.Pin) {
+	pin.High()
 }
 
-func off(pin rpio.Pin) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("LEDs off\n")                   // Goes to console
-		io.WriteString(w, "Gundam f91 LEDs off\n") // Goes to webpage
-		pin.Low()
-	}
+func off(pin rpio.Pin) {
+	pin.Low()
+}
+
+func activate() {
+	pin = rpio.Pin(18)
+	pin.Output()
+	activated = true
 }
 
 func ToggleF91(command []byte) {
-	err_rpio := rpio.Open()
-	if err_rpio != nil {
-		fmt.Println("Could not open: " + err_rpio.Error())
-		os.Exit(1)
-	}
-	defer rpio.Close()
+	instruction := string(command[:])
 
-	pin := rpio.Pin(18)
-	pin.Output()
-
-	http.HandleFunc("/f91/on", on(pin))
-	http.HandleFunc("/f91/off", off(pin))
-
-	err := http.ListenAndServe(":3333", nil)
-	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server closed\n")
-	} else if err != nil {
-		fmt.Printf("error starting server: %s\n", err)
-		os.Exit(1)
+	switch instruction {
+	case "on":
+		if activated {
+			on(pin)
+		}
+		break
+	case "off":
+		if activated {
+			off(pin)
+		}
+		break
+	case "activate":
+		err_rpio := rpio.Open()
+		if err_rpio != nil {
+			fmt.Println("Could not open: " + err_rpio.Error())
+			os.Exit(1)
+		}
+		defer rpio.Close()
+		activate()
+		break
+	case "deactivate":
+		rpio.Close()
 	}
 }
