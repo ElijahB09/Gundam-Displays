@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	uc "github.com/ElijahB09/Gundam-Displays/uc"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -56,9 +57,14 @@ func main() {
 		// element is the element from someSlice for where we are
 		opts := mqtt.NewClientOptions()
 		opts.AddBroker(fmt.Sprintf("mqtts://%s:%d", broker, port))
-		opts.SetClientID("go_mqtt_client")
-		opts.SetUsername("emqx")
-		opts.SetPassword("public")
+		opts.SetClientID("mqtt_client_" + element.name)
+		opts.SetUsername(element.name)
+		password, isThere := os.LookupEnv("GUNDAM_" + strings.ToUpper(element.name) + "_PASSWORD")
+		if !isThere {
+			fmt.Errorf("Something big gone wrong with .env")
+			break
+		}
+		opts.SetPassword(password)
 		opts.SetDefaultPublishHandler(messagePubHandler)
 		opts.OnConnect = connectHandler
 		opts.OnConnectionLost = connectLostHandler
