@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/joho/godotenv"
 )
+
+type Gundam struct {
+	name  string
+	topic string
+}
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
@@ -34,38 +38,31 @@ func main() {
 		fmt.Print("Something big gone wrong with .env")
 	}
 	var port = 8083
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("mqtts://%s:%d", broker, port))
-	opts.SetClientID("go_mqtt_client")
-	opts.SetUsername("emqx")
-	opts.SetPassword("public")
-	opts.SetDefaultPublishHandler(messagePubHandler)
-	opts.OnConnect = connectHandler
-	opts.OnConnectionLost = connectLostHandler
-	client := mqtt.NewClient(opts)
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
-	}
 
-	sub(client)
-	publish(client)
+	var gundams []Gundam
+	gundams = append(gundams, Gundam{name: "f91", topic: "gundam/uc/f91/f91gundam"})
+	gundams = append(gundams, Gundam{name: "unicorn", topic: "gundam/uc/unicorn/unicorngundam"})
 
-	client.Disconnect(250)
-}
-
-func publish(client mqtt.Client) {
-	num := 10
-	for i := 0; i < num; i++ {
-		text := fmt.Sprintf("Message %d", i)
-		token := client.Publish("topic/test", 0, false, text)
-		token.Wait()
-		time.Sleep(time.Second)
+	for _, element := range gundams {
+		// element is the element from someSlice for where we are
+		opts := mqtt.NewClientOptions()
+		opts.AddBroker(fmt.Sprintf("mqtts://%s:%d", broker, port))
+		opts.SetClientID("go_mqtt_client")
+		opts.SetUsername("emqx")
+		opts.SetPassword("public")
+		opts.SetDefaultPublishHandler(messagePubHandler)
+		opts.OnConnect = connectHandler
+		opts.OnConnectionLost = connectLostHandler
+		client := mqtt.NewClient(opts)
+		if token := client.Connect(); token.Wait() && token.Error() != nil {
+			panic(token.Error())
+		}
+		sub(client, element.topic)
 	}
 }
 
-func sub(client mqtt.Client) {
-	topic := "topic/test"
-	token := client.Subscribe(topic, 1, nil)
+func sub(client mqtt.Client, mqtt_topic string) {
+	token := client.Subscribe(mqtt_topic, 1, nil)
 	token.Wait()
-	fmt.Printf("Subscribed to topic: %s", topic)
+	fmt.Printf("Subscribed to topic: %s", mqtt_topic)
 }
