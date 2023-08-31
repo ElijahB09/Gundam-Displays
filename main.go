@@ -37,7 +37,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 
 func init() {
 	// Load .env variables into system
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		fmt.Print("No .env file found")
 	}
 }
