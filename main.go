@@ -47,9 +47,9 @@ func init() {
 }
 
 func main() {
-	var broker, exists = os.LookupEnv("PI_MQTT_BROKER")
-	if !exists {
-		fmt.Print("Something big gone wrong with .env")
+	var broker = os.Getenv("PI_MQTT_BROKER")
+	if broker == "" {
+		fmt.Errorf("Secret not recieved")
 	}
 	var port = 1883
 
