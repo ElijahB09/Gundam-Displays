@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	uc "github.com/ElijahB09/Gundam-Displays/uc"
@@ -36,10 +38,12 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func init() {
-	// Load .env variables into system
-	if err := godotenv.Load(".env"); err != nil {
-		fmt.Print("No .env file found")
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
 	}
+	environmentPath := filepath.Join(dir, ".env")
+	err = godotenv.Load(environmentPath)
 }
 
 func main() {
