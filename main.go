@@ -58,7 +58,7 @@ func main() {
 
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("mqtt://%s:%d", broker, port))
-	opts.SetClientID("mqtt_client_" + "f91")
+	opts.SetClientID("mqtt_client_f91")
 	opts.SetUsername("f91")
 	password, isThere := os.LookupEnv("GUNDAM_F91_PASSWORD")
 	if !isThere {
