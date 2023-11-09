@@ -44,10 +44,12 @@ jobs:
         echo "Past line 1"
         chmod 600 $GITHUB_WORKSPACE/id_rsa
         echo "Past line 2"
-        ssh-keyscan -T 60 -p ${{ secrets.SSH_PORT }} -H ${{ secrets.RPI_HOSTNAME }} >> $GITHUB_WORKSPACE/known_hosts
+        ssh-keyscan -T 60 -p ${{ secrets.SSH_PORT }} ${{ secrets.RPI_HOSTNAME }} 2>&1 | tee -a $GITHUB_WORKSPACE/known_hosts
         echo "Past line 3"
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        RPI_HOSTNAME: ${{ secrets.RPI_HOSTNAME }}
+        SSH_PORT: ${{ secrets.SSH_PORT }}
 
     - name: Deploy code to Raspberry Pi
       run: |
