@@ -28,10 +28,10 @@ jobs:
       env:
         ARTIFACTS_DIR: ${{ github.workspace }}/build-artifacts
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
+    deploy:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -40,24 +40,25 @@ jobs:
 
       - name: Set up SSH key
         run: |
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" > $GITHUB_WORKSPACE/id_rsa
+          chmod 600 $GITHUB_WORKSPACE/id_rsa
           echo "$SSH_KEY_PASSPHRASE" | ssh-add - <<< "$SSH_KEY_PASSPHRASE"
-          ssh-keyscan -H ${{ secrets.RPI_HOSTNAME }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.RPI_HOSTNAME }} >> $GITHUB_WORKSPACE/known_hosts
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_KEY_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
 
       - name: Deploy code to Raspberry Pi
         run: |
-          scp -i ~/.ssh/id_rsa -r ${{ github.workspace }}/build-artifacts/ ${{ secrets.RPI_USERNAME }}@${{ secrets.RPI_HOSTNAME }}:/home/${{ secrets.RPI_USERNAME }}/Gundam-Display/
+          scp -i $GITHUB_WORKSPACE/id_rsa -r $GITHUB_WORKSPACE/build-artifacts/ ${{ secrets.RPI_USERNAME }}@${{ secrets.RPI_HOSTNAME }}:/home/${{ secrets.RPI_USERNAME }}/Gundam-Display/
         env:
           RPI_USERNAME: ${{ secrets.RPI_USERNAME }}
           RPI_HOSTNAME: ${{ secrets.RPI_HOSTNAME }}
 
       - name: Clean up SSH key
         run: |
-          rm -f ~/.ssh/id_rsa
+          rm -f $GITHUB_WORKSPACE/id_rsa
           ssh-keygen -R ${{ secrets.RPI_HOSTNAME }}
         env:
           RPI_HOSTNAME: ${{ secrets.RPI_HOSTNAME }}
+
