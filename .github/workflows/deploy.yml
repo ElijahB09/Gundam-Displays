@@ -20,6 +20,7 @@ jobs:
 
     - name: Build and Test
       run: |
+        go install src.techknowlogick.com/xgo@latest
         xgo --targets=linux/arm64 -out build/gundam-displays github.com/ElijahB09/Gundam-Displays
         mkdir -p ${{ github.workspace }}/build-artifacts
         cp -r ./build/* ${{ github.workspace }}/build-artifacts/
