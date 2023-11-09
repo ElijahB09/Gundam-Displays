@@ -51,7 +51,7 @@ jobs:
     - name: Deploy code to Raspberry Pi
       run: |
         eval "$(ssh-agent -s)"
-        ssh-add $GITHUB_WORKSPACE/id_rsa <<< "${SSH_KEY_PASSPHRASE}"
+        ssh-add $GITHUB_WORKSPACE/id_rsa <<< "${{ secrets.SSH_KEY_PASSPHRASE }}"
         scp -v -i $GITHUB_WORKSPACE/id_rsa -P ${{ secrets.SSH_PORT }} -r $GITHUB_WORKSPACE/build-artifacts/ ${{ secrets.RPI_USERNAME }}@${{ secrets.RPI_HOSTNAME }}:/home/${{ secrets.RPI_USERNAME }}/Gundam-Display/
       env:
         RPI_USERNAME: ${{ secrets.RPI_USERNAME }}
