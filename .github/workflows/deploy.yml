@@ -38,11 +38,12 @@ jobs:
     - name: Install SSH client
       run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-    - name: Set up SSH key
+    - name: Set up SSH key and start agent
       run: |
         echo "$SSH_PRIVATE_KEY" > $GITHUB_WORKSPACE/id_rsa
         chmod 600 $GITHUB_WORKSPACE/id_rsa
-        echo "$SSH_KEY_PASSPHRASE" | ssh-add - <<< "$SSH_KEY_PASSPHRASE"
+        eval "$(ssh-agent -s)"
+        echo "$SSH_KEY_PASSPHRASE" | ssh-add $GITHUB_WORKSPACE/id_rsa
         ssh-keyscan -H ${{ secrets.RPI_HOSTNAME }} >> $GITHUB_WORKSPACE/known_hosts
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
