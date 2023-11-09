@@ -41,8 +41,11 @@ jobs:
     - name: Set up SSH key
       run: |
         echo "$SSH_PRIVATE_KEY" > $GITHUB_WORKSPACE/id_rsa
+        echo "Past line 1"
         chmod 600 $GITHUB_WORKSPACE/id_rsa
+        echo "Past line 2"
         ssh-keyscan -H ${{ secrets.RPI_HOSTNAME }} >> $GITHUB_WORKSPACE/known_hosts
+        echo "Past line 3"
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
