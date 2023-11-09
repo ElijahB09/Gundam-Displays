@@ -8,7 +8,6 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -19,8 +18,46 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Build
-      run: go build -v ./...
+    - name: Build and Test
+      run: |
+        go build -v ./...
+        run: go test -v ./...
+        mkdir -p ${{ github.workspace }}/build-artifacts
+        cp -r ./build-output/* ${{ github.workspace }}/build-artifacts/
 
-    - name: Test
-      run: go test -v ./...
+      env:
+        ARTIFACTS_DIR: ${{ github.workspace }}/build-artifacts
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install SSH client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+      - name: Set up SSH key
+        run: |
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "$SSH_KEY_PASSPHRASE" | ssh-add - <<< "$SSH_KEY_PASSPHRASE"
+          ssh-keyscan -H ${{ secrets.RPI_HOSTNAME }} >> ~/.ssh/known_hosts
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.SSH_KEY_PASSPHRASE }}
+
+      - name: Deploy code to Raspberry Pi
+        run: |
+          scp -i ~/.ssh/id_rsa -r ${{ github.workspace }}/build-artifacts/ ${{ secrets.RPI_USERNAME }}@${{ secrets.RPI_HOSTNAME }}:/home/${{ secrets.RPI_USERNAME }}/Gundam-Display/
+        env:
+          RPI_USERNAME: ${{ secrets.RPI_USERNAME }}
+          RPI_HOSTNAME: ${{ secrets.RPI_HOSTNAME }}
+
+      - name: Clean up SSH key
+        run: |
+          rm -f ~/.ssh/id_rsa
+          ssh-keygen -R ${{ secrets.RPI_HOSTNAME }}
+        env:
+          RPI_HOSTNAME: ${{ secrets.RPI_HOSTNAME }}
