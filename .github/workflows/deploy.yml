@@ -50,7 +50,7 @@ jobs:
 
     - name: Deploy code to Raspberry Pi
       run: |
-        scp -v -i $GITHUB_WORKSPACE/id_rsa -P $SSH_PORT -r $GITHUB_WORKSPACE/build-artifacts/ ${{ secrets.RPI_USERNAME }}@${{ secrets.RPI_HOSTNAME }}:/home/${{ secrets.RPI_USERNAME }}/Gundam-Display/
+        scp -v -i $GITHUB_WORKSPACE/id_rsa -P ${{ secrets.SSH_PORT }} -r $GITHUB_WORKSPACE/build-artifacts/ ${{ secrets.RPI_USERNAME }}@${{ secrets.RPI_HOSTNAME }}:/home/${{ secrets.RPI_USERNAME }}/Gundam-Display/
       env:
         RPI_USERNAME: ${{ secrets.RPI_USERNAME }}
         RPI_HOSTNAME: ${{ secrets.RPI_HOSTNAME }}
