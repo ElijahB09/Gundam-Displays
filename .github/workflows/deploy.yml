@@ -1,6 +1,3 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
 name: deploy
 
 on:
@@ -8,6 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -19,14 +17,37 @@ jobs:
         go-version: '1.21'
 
     - name: Build
-      run: |
-        go install src.techknowlogick.com/xgo@latest
-        xgo --targets=linux/arm64 -out build/gundam-displays github.com/ElijahB09/Gundam-Displays
-        mkdir -p ${{ github.workspace }}/build-artifacts
-        cp -r ./build/* ${{ github.workspace }}/build-artifacts/
+      run: go build -v ./...
 
-      env:
-        ARTIFACTS_DIR: ${{ github.workspace }}/build-artifacts
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+# name: deploy
+
+# on:
+#   push:
+#     branches: [ "main" ]
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v3
+
+#     - name: Set up Go
+#       uses: actions/setup-go@v4
+#       with:
+#         go-version: '1.21'
+
+#     - name: Build
+#       run: |
+#         go install src.techknowlogick.com/xgo@latest
+#         xgo --targets=linux/arm64 -out build/gundam-displays github.com/ElijahB09/Gundam-Displays
+#         mkdir -p ${{ github.workspace }}/build-artifacts
+#         cp -r ./build/* ${{ github.workspace }}/build-artifacts/
+
+#       env:
+#         ARTIFACTS_DIR: ${{ github.workspace }}/build-artifacts
 
   # deploy:
   #   needs: build
