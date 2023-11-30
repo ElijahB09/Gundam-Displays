@@ -27,11 +27,12 @@ func main() {
 		panic(token.Error())
 	}
 
+	if token := c.Subscribe("gundam/uc", 0, nil); token.Wait() && token.Error() != nil {
+		fmt.Println(token.Error())
+		os.Exit(1)
+	}
+
 	for {
-		if token := c.Subscribe("gundam/uc", 0, nil); token.Wait() && token.Error() != nil {
-			fmt.Println(token.Error())
-			os.Exit(1)
-		}
 	}
 
 	// for i := 0; i < 5; i++ {
