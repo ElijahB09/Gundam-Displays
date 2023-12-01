@@ -1,82 +1,54 @@
-// package main
+package main
 
-// import (
-// 	"fmt"
-// 	"log"
-// 	"os"
-// 	"path/filepath"
+import (
+	"fmt"
+	"log"
+	"os"
+	"time"
 
-// 	uc "github.com/ElijahB09/Gundam-Displays/uc"
-// 	mqtt "github.com/eclipse/paho.mqtt.golang"
-// 	"github.com/joho/godotenv"
-// )
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+)
 
-// type Gundam struct {
-// 	name  string
-// 	topic string
-// }
+var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("TOPIC: %s\n", msg.Topic())
+	fmt.Printf("MSG: %s\n", msg.Payload())
+}
 
-// var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-// 	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
-// 	switch msg.Topic() {
-// 	case "gundam/uc/f91/f91gundam":
-// 		uc.ToggleF91(msg.Payload())
-// 		break
-// 	case "gundam/uc/unicorn/unicorngundam":
+func main() {
+	mqtt.DEBUG = log.New(os.Stdout, "", 0)
+	mqtt.ERROR = log.New(os.Stdout, "", 0)
+	opts := mqtt.NewClientOptions().AddBroker("tcp://192.168.4.27:1883").SetClientID("gundamBackend")
+	opts.SetKeepAlive(2 * time.Second)
+	opts.SetDefaultPublishHandler(f)
+	opts.SetPingTimeout(1 * time.Second)
 
-// 		break
-// 	}
-// }
+	c := mqtt.NewClient(opts)
+	if token := c.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	}
 
-// var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
-// 	fmt.Println("Connected")
-// }
+	if token := c.Subscribe("gundam/uc", 0, nil); token.Wait() && token.Error() != nil {
+		fmt.Println(token.Error())
+		os.Exit(1)
+	}
 
-// var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-// 	fmt.Printf("Connect lost: %v", err)
-// }
+	for {
+	}
 
-// func init() {
-// 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	environmentPath := filepath.Join(dir, ".env")
-// 	err = godotenv.Load(environmentPath)
-// }
+	// for i := 0; i < 5; i++ {
+	// 	text := fmt.Sprintf("this is msg #%d!", i)
+	// 	token := c.Publish("go-mqtt/sample", 0, false, text)
+	// 	token.Wait()
+	// }
 
-// func main() {
-// 	var broker = os.Getenv("PI_MQTT_BROKER")
-// 	if broker == "" {
-// 		fmt.Errorf("Secret not recieved")
-// 	}
-// 	var port = 1883
+	// time.Sleep(6 * time.Second)
 
-// 	var gundams []Gundam
-// 	gundams = append(gundams, Gundam{name: "f91", topic: "gundam/uc/f91/f91gundam"})
-// 	gundams = append(gundams, Gundam{name: "unicorn", topic: "gundam/uc/unicorn/unicorngundam"})
+	// if token := c.Unsubscribe("go-mqtt/sample"); token.Wait() && token.Error() != nil {
+	// 	fmt.Println(token.Error())
+	// 	os.Exit(1)
+	// }
 
-// 	opts := mqtt.NewClientOptions()
-// 	opts.AddBroker(fmt.Sprintf("mqtt://%s:%d", broker, port))
-// 	opts.SetClientID("mqtt_client_f91")
-// 	opts.SetUsername("f91")
-// 	password, isThere := os.LookupEnv("GUNDAM_F91_PASSWORD")
-// 	if !isThere {
-// 		fmt.Errorf("Something big gone wrong with .env")
-// 	}
-// 	opts.SetPassword(password)
-// 	opts.SetDefaultPublishHandler(messagePubHandler)
-// 	opts.OnConnect = connectHandler
-// 	opts.OnConnectionLost = connectLostHandler
-// 	client := mqtt.NewClient(opts)
-// 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-// 		panic(token.Error())
-// 	}
-// 	sub(client, "gundam/uc/f91/f91gundam")
-// }
+	// c.Disconnect(250)
 
-// func sub(client mqtt.Client, mqtt_topic string) {
-// 	token := client.Subscribe(mqtt_topic, 1, nil)
-// 	token.Wait()
-// 	fmt.Printf("Subscribed to topic: %s", mqtt_topic)
-// }
+	// time.Sleep(1 * time.Second)
+}
